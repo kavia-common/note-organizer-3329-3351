@@ -1,3 +1,60 @@
-<div class="container">
-  <h1>{{ title }}</h1>
+<div class="app-root">
+  <header class="app-header">
+    <span class="app-title">{{ title }}</span>
+    <input class="note-search" [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" placeholder="Search notes..." type="search" />
+  </header>
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="note-list">
+        <button
+          *ngFor="let note of filteredNotes"
+          (click)="selectNote(note)"
+          [class.selected]="selectedNote?.id === note.id && !isCreating"
+          class="note-list-item"
+        >
+          <div class="note-title">{{ note.title || 'Untitled' }}</div>
+          <div class="note-meta">{{ note.updatedAt | date:'short' }}</div>
+        </button>
+        <div *ngIf="!filteredNotes.length" class="empty-list">No notes found.</div>
+      </div>
+    </aside>
+    <main class="main-area">
+      <div *ngIf="selectedNote">
+        <form (ngSubmit)="saveNote(selectedNote!)" #noteForm="ngForm" class="note-form">
+          <input
+            class="note-title-input"
+            type="text"
+            placeholder="Title"
+            [(ngModel)]="selectedNote!.title"
+            name="title"
+            maxlength="64"
+            required
+            autocomplete="off"
+          />
+          <textarea
+            class="note-content-input"
+            placeholder="Write your note here..."
+            rows="12"
+            [(ngModel)]="selectedNote!.content"
+            name="content"
+            required
+          ></textarea>
+          <div class="button-bar">
+            <button type="submit" class="primary-btn" [disabled]="!noteForm.form.valid">
+              {{ isCreating ? 'Create' : 'Save' }}
+            </button>
+            <button type="button" (click)="deleteNote(selectedNote!)" class="danger-btn" *ngIf="!isCreating">
+              Delete
+            </button>
+          </div>
+        </form>
+      </div>
+      <div *ngIf="!selectedNote && !isCreating" class="welcome-message">
+        <p>Select a note from the sidebar or create a new one.</p>
+      </div>
+    </main>
+    <button class="fab" (click)="createNote()" title="Add note">
+      <span>+</span>
+    </button>
+  </div>
 </div>
